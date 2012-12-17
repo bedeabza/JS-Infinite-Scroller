@@ -98,7 +98,7 @@ var InfiniteScroller = (function(){
 
                 //swap
                 if (this.needsSwapping() && !this.passedEdge()) {
-                    console.log('swap');
+                    //console.log('swap');
                     this['swap' + (state.direction == 1 ? 'LastFirst' : 'FirstLast')].apply(this, []);
                 }
 
@@ -122,7 +122,7 @@ var InfiniteScroller = (function(){
                 this.lastProgress = state.progress;
                 this.lastCurrentIndex = state.currentIndex;
 
-                console.log(state, normalized, state.progress);
+                //console.log(state, normalized, state.progress);
             }
         },
 
@@ -149,7 +149,7 @@ var InfiniteScroller = (function(){
         executeEdgePass: function (index) {
             var state = this.state;
 
-            console.log('edge');
+            //console.log('edge');
             state.masterDirection = 0;//state.progress != 1 ? state.direction : state.masterDirection;
             state.swappedDirection = 0;
 
