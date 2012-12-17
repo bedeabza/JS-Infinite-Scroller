@@ -54,7 +54,19 @@
         window.onload = function() {
             var scroller = new InfiniteScroller(document.getElementById('scrollpane'), {
                 colWidth: 200,
-                numElems: 5
+                numElems: 5,
+                createElement: function (index) {
+                    //console.log('Create element: ' + index);
+                },
+                destroyElement: function (index) {
+                    //console.log('Destroy element: ' + index);
+                },
+                becameVisible: function (index) {
+                    //console.log('Became visible: ' + index);
+                },
+                becameInvisible: function (index) {
+                    //console.log('Became invisible: ' + index);
+                }
             });
         };
     </script>

@@ -9,19 +9,25 @@ var InfiniteScroller = (function(){
         options: {
             colWidth: null,
             numElems: null,
-            innerOffsetNr: 1000
+            innerOffsetNr: 1000,
+            createElement: function(i){},
+            destroyElement: function(i){},
+            becameVisible: function(i){},
+            becameInvisible: function(i){}
         },
 
         lastPosition: null,
 
         lastProgress: null,
 
+        lastCurrentIndex: null,
+
         offsetValue: null,
 
         swapOffset: 0,
 
         state: {
-            direction: 0,
+            direction: undefined,
             masterDirection: 0,
             swappedDirection: 0,
             currentIndex: 0,
@@ -59,6 +65,7 @@ var InfiniteScroller = (function(){
 
             //go to elem 1
             this.scroller.scrollBy(this.offset(this.options.colWidth), 0, false);
+            this.state.masterDirection = 1;
 
             //attach events for touch
             this.attachTouchEvents();
@@ -91,23 +98,25 @@ var InfiniteScroller = (function(){
 
                 //swap
                 if (this.needsSwapping()) {
-                    console.log('swap');
                     this['swap' + (state.direction == 1 ? 'LastFirst' : 'FirstLast')].apply(this, []);
                 }
 
                 //hit edge (forward or backwards)
                 if (this.passedEdge()) {
-                    console.log('edge');
                     state.swappedDirection = 0;
                     state.masterDirection = state.direction;
+
+                    this.options.becameVisible(state.currentIndex + this.options.numElems - 2);
+                    this.options.becameInvisible(state.currentIndex -1);
                 }
 
                 //move the container
                 this.setPosition(normalized);
                 this.lastPosition = normalized;
                 this.lastProgress = state.progress;
+                this.lastCurrentIndex = state.currentIndex;
 
-                console.log(state, normalized, state.progress);
+                //console.log(state, normalized, state.progress);
             }
         },
 
@@ -128,26 +137,29 @@ var InfiniteScroller = (function(){
         },
 
         passedEdge: function() {
-            return this.state.progress < 0.2 && this.lastProgress > 0.8;
+            return this.state.currentIndex !== this.lastCurrentIndex;
         },
 
         swapLastFirst: function() {
             //move first element at the end
             this.inner.insertBefore(this.inner.children[this.inner.childElementCount-1], this.inner.children[0]);
             this.state.swappedDirection = 1;
-            this.setSwapOffset(-this.options.colWidth);
+            this.updateSwapOffset();
+            this.options.createElement(this.state.currentIndex - 1);
+            this.options.destroyElement(this.state.currentIndex + this.options.numElems - 1);
         },
 
         swapFirstLast: function() {
             //move last element at the beginning
             this.inner.appendChild(this.inner.children[0]);
             this.state.swappedDirection = -1;
-            this.setSwapOffset(this.options.colWidth);
+            this.updateSwapOffset();
+            this.options.createElement(this.state.currentIndex + this.options.numElems - 1);
+            this.options.destroyElement(this.state.currentIndex - 1);
         },
 
-        setSwapOffset: function (val) {
-            this.swapOffset = (this.state.currentIndex+1)*this.options.colWidth;
-            console.log(this.swapOffset);
+        updateSwapOffset: function () {
+            this.swapOffset = (this.state.currentIndex + (this.state.direction === 1 ? 0 : 1))*this.options.colWidth;
         },
 
         offset: function(left) {
