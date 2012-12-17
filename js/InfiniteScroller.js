@@ -1,4 +1,5 @@
-var InfiniteScroller = (function(){
+(function () {
+    'use strict';
     var self = {
         elem: null,
 
@@ -10,10 +11,10 @@ var InfiniteScroller = (function(){
             colWidth: null,
             numElems: null,
             innerOffsetNr: 1000,
-            createElement: function(i){},
-            destroyElement: function(i){},
-            becameVisible: function(i){},
-            becameInvisible: function(i){}
+            createElement: function () {},
+            destroyElement: function () {},
+            becameVisible: function () {},
+            becameInvisible: function () {}
         },
 
         lastPosition: null,
@@ -36,12 +37,12 @@ var InfiniteScroller = (function(){
 
         ignore: false,
 
-        init: function() {
+        init: function () {
             //container for the elements
             this.inner = this.elem.children[0];
 
             //zynga scroller init
-            this.scroller = new Scroller(function(){
+            this.scroller = new Scroller(function () {
                 self.update.apply(self, arguments);
             }, {
                 scrollingX: true,
@@ -50,16 +51,16 @@ var InfiniteScroller = (function(){
             });
 
             //calculate offset from the actual (HUGE) position
-            this.offsetValue = parseInt(this.options.innerOffsetNr*this.options.colWidth/2, 10);
+            this.offsetValue = parseInt(this.options.innerOffsetNr * this.options.colWidth / 2, 10);
 
             //get css property
-            var getStyleIntValue = function(elem, property) {
+            var getStyleIntValue = function (elem, property) {
                 return parseInt(window.getComputedStyle(elem, null).getPropertyValue(property), 10);
             };
 
             //setup zynga scroller
             this.ignore = true;
-            this.scroller.setDimensions(getStyleIntValue(this.elem, 'width'), getStyleIntValue(this.elem, 'height'), this.options.innerOffsetNr*this.options.colWidth, getStyleIntValue(this.inner, 'height'));
+            this.scroller.setDimensions(getStyleIntValue(this.elem, 'width'), getStyleIntValue(this.elem, 'height'), this.options.innerOffsetNr * this.options.colWidth, getStyleIntValue(this.inner, 'height'));
             this.scroller.setSnapSize(this.options.colWidth, 0);
             this.ignore = false;
 
@@ -71,16 +72,17 @@ var InfiniteScroller = (function(){
             this.attachTouchEvents();
         },
 
-        update: function(left, top, zoom) {
-            var position = -parseInt(left, 10); //invert position from zynga
-            var normalized = this.offset(position); //get actual "relative" position
-            var state = this.state;
-            var width = this.options.colWidth;
+        update: function (left) {
+            var position = -parseInt(left, 10), //invert position from zynga
+                normalized = this.offset(position), //get actual "relative" position
+                state = this.state,
+                width = this.options.colWidth,
+                i;
 
-            if (!this.ignore && this.lastPosition != normalized){ //only execute if needed
+            if (!this.ignore && this.lastPosition !== normalized) { //only execute if needed
                 //instantaneous direction
-                state.direction = normalized == this.lastPosition ? 0 : normalized < this.lastPosition ? -1 : 1;
-                state.currentIndex = -Math.ceil(normalized/width) - 1;
+                state.direction = normalized === this.lastPosition ? 0 : normalized < this.lastPosition ? -1 : 1;
+                state.currentIndex = -Math.ceil(normalized / width) - 1;
 
                 //cell direction
                 if (state.masterDirection === 0) {
@@ -88,10 +90,10 @@ var InfiniteScroller = (function(){
                 }
 
                 //calculate progress in current element
-                state.progress = Math.abs(normalized >= 0 ? this.options.colWidth-normalized : -normalized) % width / width;
+                state.progress = Math.abs(normalized >= 0 ? this.options.colWidth - normalized : -normalized) % width / width;
 
                 if (state.masterDirection !== -1) {
-                    state.progress = 1-state.progress;
+                    state.progress = 1 - state.progress;
                 }
 
                 state.progress = parseFloat(state.progress.toFixed(2));
@@ -99,18 +101,17 @@ var InfiniteScroller = (function(){
                 //swap
                 if (this.needsSwapping() && !this.passedEdge()) {
                     //console.log('swap');
-                    this['swap' + (state.direction == 1 ? 'LastFirst' : 'FirstLast')].apply(this, []);
+                    this['swap' + (state.direction === 1 ? 'LastFirst' : 'FirstLast')].apply(this, []);
                 }
 
                 //hit edge (forward or backwards)
                 if (this.passedEdge()) {
-                    var i;
-                    if (state.direction == -1) {
-                        for(i = this.lastCurrentIndex;i < state.currentIndex;i++){
+                    if (state.direction === -1) {
+                        for (i = this.lastCurrentIndex;i < state.currentIndex;i += 1) {
                             this.executeEdgePass(i);
                         }
                     } else {
-                        for(i = this.lastCurrentIndex;i > state.currentIndex;i--){
+                        for (i = this.lastCurrentIndex;i > state.currentIndex;i -= 1) {
                             this.executeEdgePass(i);
                         }
                     }
@@ -126,7 +127,7 @@ var InfiniteScroller = (function(){
             }
         },
 
-        needsSwapping: function() {
+        needsSwapping: function () {
             var state = this.state;
 
             //do normal swap
@@ -142,7 +143,7 @@ var InfiniteScroller = (function(){
             return false;
         },
 
-        passedEdge: function() {
+        passedEdge: function () {
             return this.lastCurrentIndex !== null && (this.state.currentIndex !== this.lastCurrentIndex || this.state.progress === 1);
         },
 
@@ -161,16 +162,16 @@ var InfiniteScroller = (function(){
             this.options.becameInvisible(index);
         },
 
-        swapLastFirst: function() {
+        swapLastFirst: function () {
             //move first element at the end
-            this.inner.insertBefore(this.inner.children[this.inner.childElementCount-1], this.inner.children[0]);
+            this.inner.insertBefore(this.inner.children[this.inner.childElementCount - 1], this.inner.children[0]);
             this.state.swappedDirection = 1;
             this.updateSwapOffset();
             this.options.createElement(this.state.currentIndex - 1);
             this.options.destroyElement(this.state.currentIndex + this.options.numElems - 1);
         },
 
-        swapFirstLast: function() {
+        swapFirstLast: function () {
             //move last element at the beginning
             this.inner.appendChild(this.inner.children[0]);
             this.state.swappedDirection = -1;
@@ -180,45 +181,47 @@ var InfiniteScroller = (function(){
         },
 
         updateSwapOffset: function () {
-            this.swapOffset = (this.state.currentIndex + (this.state.direction === 1 ? 0 : 1))*this.options.colWidth;
+            this.swapOffset = (this.state.currentIndex + (this.state.direction === 1 ? 0 : 1)) * this.options.colWidth;
         },
 
-        offset: function(left) {
+        offset: function (left) {
             return left + this.offsetValue;
         },
 
-        setPosition: function(position) {
+        setPosition: function (position) {
             this.inner.style['-webkit-transform'] = 'translateX(' + (position + this.swapOffset) + 'px)';
         },
 
-        attachTouchEvents: function() {
-            var scroller = this.scroller;
-            var elem = this.elem;
+        attachTouchEvents: function () {
+            var scroller = this.scroller,
+                elem = this.elem;
 
-            elem.addEventListener('touchstart', function(e){
+            elem.addEventListener('touchstart', function (e) {
                 scroller.doTouchStart(e.changedTouches, e.timeStamp);
             }, false);
 
-            elem.addEventListener('touchend', function(e){
+            elem.addEventListener('touchend', function (e) {
                 scroller.doTouchEnd(e.timeStamp);
             }, false);
 
-            elem.addEventListener('touchcancel', function(e){
+            elem.addEventListener('touchcancel', function (e) {
                 scroller.doTouchEnd(e.timeStamp);
             }, false);
 
-            elem.addEventListener('touchmove', function(e){
+            elem.addEventListener('touchmove', function (e) {
                 scroller.doTouchMove(e.changedTouches, e.timeStamp);
             }, false);
         }
     };
 
-    return function(){
-        return (function(elem, options) {
+    window.InfiniteScroller = function InfiniteScroller() {
+        return (function (elem, options) {
             this.elem = elem;
 
             for (var key in options) {
-                this.options[key] = options[key];
+                if (options.hasOwnProperty(key)) {
+                    this.options[key] = options[key];
+                }
             }
 
             this.init();
