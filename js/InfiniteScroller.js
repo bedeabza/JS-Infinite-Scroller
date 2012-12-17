@@ -65,7 +65,7 @@ var InfiniteScroller = (function(){
 
             //go to elem 1
             this.scroller.scrollBy(this.offset(this.options.colWidth), 0, false);
-            this.state.masterDirection = 1;
+            this.state.masterDirection = 0;
 
             //attach events for touch
             this.attachTouchEvents();
@@ -98,11 +98,13 @@ var InfiniteScroller = (function(){
 
                 //swap
                 if (this.needsSwapping()) {
+                    //console.log('swap');
                     this['swap' + (state.direction == 1 ? 'LastFirst' : 'FirstLast')].apply(this, []);
                 }
 
                 //hit edge (forward or backwards)
                 if (this.passedEdge()) {
+                    //console.log('edge');
                     state.swappedDirection = 0;
                     state.masterDirection = state.direction;
 
@@ -137,7 +139,7 @@ var InfiniteScroller = (function(){
         },
 
         passedEdge: function() {
-            return this.state.currentIndex !== this.lastCurrentIndex;
+            return this.lastCurrentIndex !== null && this.state.currentIndex !== this.lastCurrentIndex;
         },
 
         swapLastFirst: function() {
