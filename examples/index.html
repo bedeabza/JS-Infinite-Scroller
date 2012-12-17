@@ -76,9 +76,9 @@
 
     <div id="log"></div>
 
-    <script type="text/javascript" src="js/Animate.js"></script>
-    <script type="text/javascript" src="js/Scroller.js"></script>
-    <script type="text/javascript" src="js/InfiniteScroller.js"></script>
+    <script type="text/javascript" src="../lib/ZyngaScroller/src/Animate.js"></script>
+    <script type="text/javascript" src="../lib/ZyngaScroller/src/Scroller.js"></script>
+    <script type="text/javascript" src="../lib/InfiniteScroller.js"></script>
     <script type="text/javascript">
         var log = function (text) {
             var p = document.createElement('p');
@@ -94,17 +94,19 @@
             var scroller = new InfiniteScroller(document.getElementById('scrollpane'), {
                 colWidth: 200,
                 numElems: 5,
-                createElement: function (index) {
-                    //console.log('Create element: ' + index);
+                createElement: function (index, elem) {
+                    elem.style.backgroundColor = 'lightyellow';
                 },
-                destroyElement: function (index) {
-                    //console.log('Destroy element: ' + index);
+                destroyElement: function (index, elem) {
+                    elem.style.backgroundColor = 'none';
                 },
-                becameVisible: function (index) {
+                becameVisible: function (index, elem) {
+                    elem.innerHTML = index.toString();
                     log(index + ' became visible');
                 },
-                becameInvisible: function (index) {
-                    //console.log('Became invisible: ' + index);
+                becameInvisible: function (index, elem) {
+                    elem.innerHTML = '-';
+                    log(index + ' became invisible');
                 }
             });
         };

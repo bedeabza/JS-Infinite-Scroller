@@ -1,0 +1,3 @@
+[submodule "lib/ZyngaScroller"]
+	path = lib/ZyngaScroller
+	url = git://github.com/zynga/scroller.git
