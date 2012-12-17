@@ -11,10 +11,10 @@
             colWidth: null,
             numElems: null,
             innerOffsetNr: 1000,
-            createElement: function () {},
-            destroyElement: function () {},
-            becameVisible: function () {},
-            becameInvisible: function () {}
+            createElement: undefined,
+            destroyElement: undefined,
+            becameVisible: undefined,
+            becameInvisible: undefined
         },
 
         lastPosition: null,
@@ -39,6 +39,8 @@
 
         //executed once when the scroller is initialized
         init: function () {
+            var getStyleIntValue, i;
+
             //container for the elements
             this.inner = this.elem.children[0];
 
@@ -55,7 +57,7 @@
             this.offsetValue = parseInt(this.options.innerOffsetNr * this.options.colWidth / 2, 10);
 
             //get css property
-            var getStyleIntValue = function (elem, property) {
+            getStyleIntValue = function (elem, property) {
                 return parseInt(window.getComputedStyle(elem, null).getPropertyValue(property), 10);
             };
 
@@ -68,6 +70,11 @@
             //go to elem 1
             this.scroller.scrollBy(this.offset(this.options.colWidth), 0, false);
             this.state.masterDirection = 0;
+
+            //trigger visibility for first elements
+            for (i = 0;i < this.options.numElems - 1;i += 1) {
+                this.callbacks.becameVisible(i);
+            }
 
             //attach events for touch
             this.attachTouchEvents();
@@ -173,8 +180,8 @@
                 state.progress = 0;
             }
 
-            this.options.becameVisible(index + this.options.numElems - 1);
-            this.options.becameInvisible(index);
+            this.callbacks.becameVisible(index + this.options.numElems - 1);
+            this.callbacks.becameInvisible(index);
         },
 
         //move last element at the beginning
@@ -182,8 +189,8 @@
             this.inner.insertBefore(this.inner.children[this.inner.childElementCount - 1], this.inner.children[0]);
             this.state.swappedDirection = 1;
             this.updateSwapOffset();
-            this.options.createElement(this.state.currentIndex - 1);
-            this.options.destroyElement(this.state.currentIndex + this.options.numElems - 1);
+            this.callbacks.createElement(this.state.currentIndex - 1);
+            this.callbacks.destroyElement(this.state.currentIndex + this.options.numElems - 1);
         },
 
         //move first element at the end
@@ -191,8 +198,8 @@
             this.inner.appendChild(this.inner.children[0]);
             this.state.swappedDirection = -1;
             this.updateSwapOffset();
-            this.options.createElement(this.state.currentIndex + this.options.numElems - 1);
-            this.options.destroyElement(this.state.currentIndex - 1);
+            this.callbacks.createElement(this.state.currentIndex + this.options.numElems - 1);
+            this.callbacks.destroyElement(this.state.currentIndex - 1);
         },
 
         //change offset for shifting the whole container when swapping
@@ -207,7 +214,7 @@
 
         //make the browser transformation to actually move the elements
         setPosition: function (position) {
-            this.inner.style['-webkit-transform'] = 'translateX(' + (position + this.swapOffset) + 'px)';
+            this.inner.style['-webkit-transform'] = 'translate3d(' + (position + this.swapOffset) + 'px, 0px, 0) scale(1)';
         },
 
         //create event handlers
@@ -230,6 +237,25 @@
             elem.addEventListener('touchmove', function (e) {
                 scroller.doTouchMove(e.changedTouches, e.timeStamp);
             }, false);
+        },
+
+        //define callback handlers
+        callbacks: {
+            _: function (func) {
+                return self.options[func].apply(self, Array.prototype.slice.call(arguments, 1));
+            },
+            createElement: function (i) {
+                return self.callbacks._('createElement', i);
+            },
+            destroyElement: function (i) {
+                return self.callbacks._('destroyElement', i);
+            },
+            becameVisible: function (i) {
+                return self.callbacks._('becameVisible', i);
+            },
+            becameInvisible: function (i) {
+                return self.callbacks._('becameInvisible', i);
+            }
         }
     };
 
