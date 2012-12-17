@@ -37,6 +37,7 @@
 
         ignore: false,
 
+        //executed once when the scroller is initialized
         init: function () {
             //container for the elements
             this.inner = this.elem.children[0];
@@ -72,12 +73,12 @@
             this.attachTouchEvents();
         },
 
+        //executed for every move event
         update: function (left) {
             var position = -parseInt(left, 10), //invert position from zynga
                 normalized = this.offset(position), //get actual "relative" position
                 state = this.state,
-                width = this.options.colWidth,
-                i;
+                width = this.options.colWidth;
 
             if (!this.ignore && this.lastPosition !== normalized) { //only execute if needed
                 //instantaneous direction
@@ -100,21 +101,12 @@
 
                 //swap
                 if (this.needsSwapping() && !this.passedEdge()) {
-                    //console.log('swap');
-                    this['swap' + (state.direction === 1 ? 'LastFirst' : 'FirstLast')].apply(this, []);
+                    this.executeBetweenIndexes(this['swap' + (state.direction === 1 ? 'LastFirst' : 'FirstLast')], 1);
                 }
 
                 //hit edge (forward or backwards)
                 if (this.passedEdge()) {
-                    if (state.direction === -1) {
-                        for (i = this.lastCurrentIndex;i < state.currentIndex;i += 1) {
-                            this.executeEdgePass(i);
-                        }
-                    } else {
-                        for (i = this.lastCurrentIndex;i > state.currentIndex;i -= 1) {
-                            this.executeEdgePass(i);
-                        }
-                    }
+                    this.executeBetweenIndexes(this.executeEdgePass);
                 }
 
                 //move the container
@@ -127,6 +119,27 @@
             }
         },
 
+        //execute a function for as many times as currentIndex - lastIndex + additionalExecutions
+        //for situations where the scroll happened so fast that elements have been skipped
+        executeBetweenIndexes: function (func, additionalExecutions) {
+            var i;
+
+            if (additionalExecutions === undefined) {
+                additionalExecutions = 0;
+            }
+
+            if (this.state.direction === -1) {
+                for (i = this.lastCurrentIndex;i < this.state.currentIndex + additionalExecutions;i += 1) {
+                    func.call(this, i);
+                }
+            } else {
+                for (i = this.lastCurrentIndex;i > this.state.currentIndex - additionalExecutions;i -= 1) {
+                    func.call(this, i);
+                }
+            }
+        },
+
+        //check if swap is needed
         needsSwapping: function () {
             var state = this.state;
 
@@ -143,10 +156,12 @@
             return false;
         },
 
+        //check if at least an edge has been passed by
         passedEdge: function () {
             return this.lastCurrentIndex !== null && (this.state.currentIndex !== this.lastCurrentIndex || this.state.progress === 1);
         },
 
+        //do stuff when an edge is passed by
         executeEdgePass: function (index) {
             var state = this.state;
 
@@ -162,8 +177,8 @@
             this.options.becameInvisible(index);
         },
 
+        //move last element at the beginning
         swapLastFirst: function () {
-            //move first element at the end
             this.inner.insertBefore(this.inner.children[this.inner.childElementCount - 1], this.inner.children[0]);
             this.state.swappedDirection = 1;
             this.updateSwapOffset();
@@ -171,8 +186,8 @@
             this.options.destroyElement(this.state.currentIndex + this.options.numElems - 1);
         },
 
+        //move first element at the end
         swapFirstLast: function () {
-            //move last element at the beginning
             this.inner.appendChild(this.inner.children[0]);
             this.state.swappedDirection = -1;
             this.updateSwapOffset();
@@ -180,18 +195,22 @@
             this.options.destroyElement(this.state.currentIndex - 1);
         },
 
+        //change offset for shifting the whole container when swapping
         updateSwapOffset: function () {
             this.swapOffset = (this.state.currentIndex + (this.state.direction === 1 ? 0 : 1)) * this.options.colWidth;
         },
 
+        //obtain "normalized" value of x
         offset: function (left) {
             return left + this.offsetValue;
         },
 
+        //make the browser transformation to actually move the elements
         setPosition: function (position) {
             this.inner.style['-webkit-transform'] = 'translateX(' + (position + this.swapOffset) + 'px)';
         },
 
+        //create event handlers
         attachTouchEvents: function () {
             var scroller = this.scroller,
                 elem = this.elem;

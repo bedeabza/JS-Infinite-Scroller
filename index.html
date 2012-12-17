@@ -47,7 +47,19 @@
         }
 
         #log{
+            width: 580px;
+            height: 200px;
+            overflow: auto;
+            margin: 50px auto 0 auto;
+            border: 1px solid #aaa;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
 
+        #log p{
+            margin: 0;
+            padding: 0 0 10px 0;
         }
     </style>
 </head>
@@ -68,6 +80,16 @@
     <script type="text/javascript" src="js/Scroller.js"></script>
     <script type="text/javascript" src="js/InfiniteScroller.js"></script>
     <script type="text/javascript">
+        var log = function (text) {
+            var p = document.createElement('p');
+            var text = document.createTextNode(text);
+            var log = document.getElementById('log');
+
+            p.appendChild(text);
+            log.appendChild(p);
+            log.scrollTop = 10000000;
+        };
+
         window.onload = function() {
             var scroller = new InfiniteScroller(document.getElementById('scrollpane'), {
                 colWidth: 200,
@@ -79,7 +101,7 @@
                     //console.log('Destroy element: ' + index);
                 },
                 becameVisible: function (index) {
-                    //console.log('Became visible: ' + index);
+                    log(index + ' became visible');
                 },
                 becameInvisible: function (index) {
                     //console.log('Became invisible: ' + index);
