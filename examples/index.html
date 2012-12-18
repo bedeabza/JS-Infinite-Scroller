@@ -18,7 +18,7 @@
             width: 600px;
             height: 400px;
             margin: 50px auto 0 auto;
-            background-color: #ddd;
+            background-color: lightyellow;
             overflow: hidden;
             border: 1px solid red;
             border-right: 0;
@@ -95,10 +95,10 @@
                 colWidth: 200,
                 numElems: 5,
                 createElement: function (index, elem) {
-                    elem.style.backgroundColor = 'lightyellow';
+                    // do something
                 },
                 destroyElement: function (index, elem) {
-                    elem.style.backgroundColor = 'none';
+                    // do something
                 },
                 becameVisible: function (index, elem) {
                     elem.innerHTML = index.toString();
