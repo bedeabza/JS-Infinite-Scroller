@@ -97,27 +97,29 @@
                 colWidth: 200,
                 numElems: 5,
                 debug: true,
-                createElement: function (index, elem) {
-                    elem.className = "column created";
-                    elem.innerHTML = index.toString();
-                },
-                destroyElement: function (index, elem) {
-                    elem.className = "column destroyed";
-                    elem.innerHTML = '-';
-                },
-                becameVisible: function (index, elem) {
-                    elem.className = "column visible";
-                    log(index + ' became visible');
-                },
-                becameInvisible: function (index, elem) {
-                    elem.className = "column invisible";
-                    log(index + ' became invisible');
-                },
-                started: function () {
-                    document.getElementById('scrollpane').className = 'active';
-                },
-                stopped: function () {
-                    document.getElementById('scrollpane').className = '';
+                callbacks: {
+                    createElement: function (index, elem) {
+                        elem.className = "column created";
+                        elem.innerHTML = index.toString();
+                    },
+                    destroyElement: function (index, elem) {
+                        elem.className = "column destroyed";
+                        elem.innerHTML = '-';
+                    },
+                    becameVisible: function (index, elem) {
+                        elem.className = "column visible";
+                        log(index + ' became visible');
+                    },
+                    becameInvisible: function (index, elem) {
+                        elem.className = "column invisible";
+                        log(index + ' became invisible');
+                    },
+                    started: function () {
+                        document.getElementById('scrollpane').className = 'active';
+                    },
+                    stopped: function () {
+                        document.getElementById('scrollpane').className = '';
+                    }
                 }
             });
         };
