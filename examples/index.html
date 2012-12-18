@@ -16,11 +16,15 @@
             width: 600px;
             height: 400px;
             margin: 50px auto 0 auto;
-            background-color: lightyellow;
+            background-color: #ccc;
             overflow: hidden;
             border: 1px solid red;
             border-right: 0;
             position: relative;
+        }
+
+        #scrollpane.active{
+            background-color: lightyellow;
         }
 
         #scrollpane-inner{
@@ -92,19 +96,28 @@
             var scroller = new InfiniteScroller(document.getElementById('scrollpane'), {
                 colWidth: 200,
                 numElems: 5,
+                debug: true,
                 createElement: function (index, elem) {
-                    // do something
+                    elem.className = "column created";
+                    elem.innerHTML = index.toString();
                 },
                 destroyElement: function (index, elem) {
-                    // do something
+                    elem.className = "column destroyed";
+                    elem.innerHTML = '-';
                 },
                 becameVisible: function (index, elem) {
-                    elem.innerHTML = index.toString();
+                    elem.className = "column visible";
                     log(index + ' became visible');
                 },
                 becameInvisible: function (index, elem) {
-                    elem.innerHTML = '-';
+                    elem.className = "column invisible";
                     log(index + ' became invisible');
+                },
+                started: function () {
+                    document.getElementById('scrollpane').className = 'active';
+                },
+                stopped: function () {
+                    document.getElementById('scrollpane').className = '';
                 }
             });
         };
