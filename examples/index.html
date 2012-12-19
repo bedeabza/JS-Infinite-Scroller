@@ -48,6 +48,18 @@
             cursor: pointer;
         }
 
+        #scrollpane.changed {
+            width: 750px;
+        }
+
+        .changed #scrollpane-inner{
+            width: 1500px;
+        }
+
+        .changed .column{
+            width: 250px;
+        }
+
         #log{
             width: 580px;
             height: 200px;
@@ -57,6 +69,10 @@
             padding: 10px;
             font-family: Arial, sans-serif;
             font-size: 12px;
+        }
+
+        .center{
+            text-align: center;
         }
 
         #log p{
@@ -74,6 +90,11 @@
             <div class="column">3</div>
             <div class="column">4</div>
         </div>
+    </div>
+
+    <div class="center">
+        <br /><br />
+        <button id="button">Change column width</button>
     </div>
 
     <div id="log"></div>
@@ -115,11 +136,21 @@
                         log(index + ' became invisible');
                     },
                     started: function () {
-                        document.getElementById('scrollpane').className = 'active';
+                        document.getElementById('scrollpane').className += ' active';
                     },
                     stopped: function () {
-                        document.getElementById('scrollpane').className = '';
+                        document.getElementById('scrollpane').className = document.getElementById('scrollpane').className.replace(/ active/, '');
                     }
+                }
+            });
+
+            document.getElementById('button').addEventListener('click', function () {
+                if (document.getElementById('scrollpane').className.indexOf('changed') > -1) {
+                    document.getElementById('scrollpane').className = '';
+                    scroller.setColWidth(200);
+                } else {
+                    document.getElementById('scrollpane').className = 'changed';
+                    scroller.setColWidth(250);
                 }
             });
         };
