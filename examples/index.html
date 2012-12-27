@@ -35,6 +35,9 @@
         <button id="button1">Toggle column width</button>
         <br /><br />
         <button id="button2">Toggle number of columns</button>
+        <br /><br />
+        <button id="button3">Scroll to</button>
+        <input type="number" id="scroll-to" value="10" />
     </div>
 
     <div id="log"></div>
@@ -129,6 +132,10 @@
 
                     scroller.setNumElems(7);
                 }
+            });
+
+            document.getElementById('button3').addEventListener('click', function () {
+                scroller.scrollTo(document.getElementById('scroll-to').value, true);
             });
         };
     </script>
