@@ -38,6 +38,7 @@
         <br /><br />
         <button id="button3">Scroll to</button>
         <input type="number" id="scroll-to" value="10" />
+        <button id="button4">Scroll without animation</button>
     </div>
 
     <div id="log"></div>
@@ -136,6 +137,10 @@
 
             document.getElementById('button3').addEventListener('click', function () {
                 scroller.scrollTo(document.getElementById('scroll-to').value, true);
+            });
+
+            document.getElementById('button4').addEventListener('click', function () {
+                scroller.scrollTo(document.getElementById('scroll-to').value, false);
             });
         };
     </script>
