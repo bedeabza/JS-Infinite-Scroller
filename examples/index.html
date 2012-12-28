@@ -115,22 +115,9 @@
 
                 if (elem.className.indexOf('more') > -1) {
                     removeClass(elem, 'more');
-                    inner = document.getElementById('scrollpane-inner');
-
                     scroller.setNumElems(5);
-
-                    for (i = 0;i < 2;i++) {
-                        inner.removeChild(inner.children[inner.childElementCount - 1]);
-                    }
                 } else {
                     addClass(elem, 'more');
-
-                    for (i = 0;i < 2;i++) {
-                        div = document.createElement('div');
-                        div.className = 'column';
-                        document.getElementById('scrollpane-inner').appendChild(div);
-                    }
-
                     scroller.setNumElems(7);
                 }
             });
