@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <title>Scroller</title>
+    <style type="text/css">
+        body{width: 100%;height: 100%;overflow: hidden;}
+        #scrollpane{width: 600px;height: 400px;margin: 50px auto 0 auto;background-color: #ccc;overflow: hidden;border: 1px solid red;border-right: 0;position: relative;}
+        #scrollpane.active{background-color: lightyellow;}
+        #scrollpane.more{width: 1000px;}
+        #scrollpane.big {width: 750px;}
+        #scrollpane.big.more {width: 1250px;}
+        #scrollpane-inner{width: 1000px;height: 100%;position: absolute;-webkit-backface-visibility: hidden;}
+        .big #scrollpane-inner{width: 1500px;}
+        .more #scrollpane-inner{width: 1400px;}
+        .big.more #scrollpane-inner{width: 2000px;}
+        .column{width: 199px;height: 100%;float: left;border-right: 1px solid red;text-align: center;font-family: Arial, sans-serif;font-size: 120px;-webkit-touch-callout: none;-webkit-user-select: none;user-select: none;cursor: pointer;}
+        .big .column{width: 249px;}
+        #log{width: 580px;height: 200px;overflow: auto;margin: 50px auto 0 auto;border: 1px solid #aaa;padding: 10px;font-family: Arial, sans-serif;font-size: 12px;}
+        #log p{margin: 0;padding: 0 0 10px 0;}
+        .center{text-align: center;}
+
+        #columns { height: 100%; }
+        #overlay {
+          position: absolute;
+          top:  0;
+          left: 50%;
+        }
+
+        #scrollpane { position:  relative;}
+    </style>
+</head>
+<body>
+    <div id="scrollpane">
+        <div id="scrollpane-inner">
+            <div id="columns">
+	            <div class="column"></div>
+            </div>
+            <div id="overlay"> Some Overlay </div>
+        </div>
+    </div>
+
+    <div class="center">
+        <br /><br />
+        <button id="button1">Toggle column width</button>
+        <br /><br />
+        <button id="button2">Toggle number of columns</button>
+        <br /><br />
+        <button id="button3">Scroll to</button>
+        <input type="number" id="scroll-to" value="10" />
+        <button id="button4">Scroll without animation</button>
+    </div>
+
+    <div id="log"></div>
+
+    <script type="text/javascript" src="../lib/ZyngaScroller/src/Animate.js"></script>
+    <script type="text/javascript" src="../lib/ZyngaScroller/src/Scroller.js"></script>
+    <script type="text/javascript" src="../lib/InfiniteScroller.js"></script>
+    <script type="text/javascript">
+        var log = function (text) {
+            var p = document.createElement('p');
+            var text = document.createTextNode(text);
+            var log = document.getElementById('log');
+
+            p.appendChild(text);
+            log.appendChild(p);
+            log.scrollTop = 10000000;
+        };
+
+        window.onload = function() {
+            //put in window.scroller to be accessible from the console
+            window.scroller = new InfiniteScroller(document.getElementById('scrollpane'), {
+                colWidth: 200,
+                numElems: 5,
+                elemContainer: document.getElementById('columns'),
+                debug: true,
+                callbacks: {
+                    createElement: function (index, elem) {
+                        elem.className = "column created";
+                        elem.innerHTML = index.toString();
+                    },
+                    destroyElement: function (index, elem) {
+                        elem.className = "column destroyed";
+                        elem.innerHTML = '-';
+                    },
+                    becameVisible: function (index, elem) {
+                        elem.className = "column visible";
+                        log(index + ' became visible');
+                    },
+                    becameInvisible: function (index, elem) {
+                        elem.className = "column invisible";
+                        log(index + ' became invisible');
+                    },
+                    started: function () {
+                        document.getElementById('scrollpane').className += ' active';
+                    },
+                    stopped: function () {
+                        document.getElementById('scrollpane').className = document.getElementById('scrollpane').className.replace(/ active/, '');
+                    }
+                }
+            });
+
+            function addClass (id, className) {
+                var elem = typeof(id) === 'string' ? document.getElementById(id) : id;
+                elem.className += (elem.className ? ' ' : '') + className;
+            }
+
+            function removeClass (id, className) {
+                var elem = typeof(id) === 'string' ? document.getElementById(id) : id;
+                elem.className = elem.className.replace(new RegExp("\\s?" + className + "\\s?"), '');
+            }
+
+            document.getElementById('button1').addEventListener('click', function () {
+                var elem = document.getElementById('scrollpane');
+                if (elem.className.indexOf('big') > -1) {
+                    removeClass(elem, 'big');
+                    scroller.setColWidth(200);
+                } else {
+                    addClass(elem, 'big');
+                    scroller.setColWidth(250);
+                }
+            });
+
+            document.getElementById('button2').addEventListener('click', function () {
+                var elem = document.getElementById('scrollpane'),
+                    div, inner, i;
+
+                if (elem.className.indexOf('more') > -1) {
+                    removeClass(elem, 'more');
+                    scroller.setNumElems(5);
+                } else {
+                    addClass(elem, 'more');
+                    scroller.setNumElems(7);
+                }
+            });
+
+            document.getElementById('button3').addEventListener('click', function () {
+                scroller.scrollTo(document.getElementById('scroll-to').value, true);
+            });
+
+            document.getElementById('button4').addEventListener('click', function () {
+                scroller.scrollTo(document.getElementById('scroll-to').value, false);
+            });
+        };
+    </script>
+</body>
+</html>
